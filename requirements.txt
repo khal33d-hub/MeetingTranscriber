@@ -1,0 +1,6 @@
+faster-whisper>=1.1.0
+customtkinter>=5.2.2
+PyAudioWPatch>=0.2.12
+numpy
+nvidia-cublas-cu12
+nvidia-cudnn-cu12==9.*

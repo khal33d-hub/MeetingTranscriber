@@ -1,0 +1,41 @@
+# --- Python virtual environment (includes ~GBs of NVIDIA CUDA/cuDNN DLLs) ---
+.venv/
+venv/
+env/
+
+# --- Python cache ---
+__pycache__/
+*.py[cod]
+
+# --- Whisper / LLM model files (downloaded on first launch, never commit) ---
+models/
+*.bin
+*.safetensors
+*.gguf
+*.ggml
+*.pt
+*.pth
+*.onnx
+*.ckpt
+model.bin
+vocabulary.*
+tokenizer.json
+preprocessor_config.json
+.cache/
+huggingface/
+
+# --- Personal transcripts and recordings ---
+transcripts/
+recordings/
+*.srt
+*.wav
+
+# --- Per-user settings (contains local paths and device names) ---
+settings.json
+
+# --- Diagnostics / OS junk ---
+DxDiag.txt
+Thumbs.db
+desktop.ini
+.DS_Store
+*.log
