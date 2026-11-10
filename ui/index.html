@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meeting Transcriber</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4M8 21h8"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+    <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 5 6M21 9l-5 6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <!-- ============ Rail ============ -->
+  <nav class="rail">
+    <div class="logo" title="Meeting Transcriber"><span></span><span></span><span></span></div>
+    <button class="nav active" data-page="live" title="Live meeting  (Ctrl+1)"><svg><use href="#i-mic"/></svg><small>Live</small></button>
+    <button class="nav" data-page="file" title="Transcribe a file  (Ctrl+2)"><svg><use href="#i-file"/></svg><small>File</small></button>
+    <button class="nav" data-page="history" title="History  (Ctrl+3)"><svg><use href="#i-history"/></svg><small>History</small></button>
+    <div class="grow"></div>
+    <button class="nav mute" id="mute-btn" title="Mute sounds  (Ctrl+M)"><svg><use href="#i-speaker"/></svg><small>Sound</small></button>
+    <button class="nav" data-page="settings" title="Settings  (Ctrl+4)"><svg><use href="#i-settings"/></svg><small>Settings</small></button>
+  </nav>
+
+  <main>
+    <header class="top">
+      <div>
+        <h1 id="page-title">Live meeting</h1>
+        <p id="page-sub" class="muted">Transcribes you and everyone you can hear, as they speak.</p>
+      </div>
+      <div class="status" id="status" data-kind="loading" title="">
+        <i class="dot"></i><span id="status-title">Starting…</span>
+      </div>
+    </header>
+
+    <!-- ============ Live ============ -->
+    <section class="page active" id="page-live">
+      <div class="panel controls">
+        <button class="rec" id="rec-btn" title="Start / stop recording  (Ctrl+R)"><span class="rec-core"></span></button>
+        <div class="rec-meta">
+          <div class="timer" id="timer">00:00:00</div>
+          <div class="muted small" id="rec-state">Ready to record</div>
+        </div>
+        <div class="sources">
+          <label class="source">
+            <svg><use href="#i-mic"/></svg>
+            <select id="mic-select"></select>
+            <span class="meter"><i id="mic-meter"></i></span>
+          </label>
+          <label class="source">
+            <svg><use href="#i-speaker"/></svg>
+            <select id="spk-select"></select>
+            <span class="meter"><i id="spk-meter"></i></span>
+          </label>
+        </div>
+        <button class="icon-btn" id="refresh-devices" title="Refresh devices"><svg><use href="#i-refresh"/></svg></button>
+      </div>
+
+      <div class="panel transcript-wrap">
+        <div class="transcript" id="live-out">
+          <div class="empty">
+            <div class="empty-mark"><svg><use href="#i-mic"/></svg></div>
+            <p>Press record to start.</p>
+            <p class="muted small">Your microphone and the meeting audio are transcribed here as people speak.</p>
+          </div>
+        </div>
+        <button class="jump" id="live-jump"><svg><use href="#i-down"/></svg>Latest</button>
+        <div class="toolbar" data-target="live-out">
+          <button data-act="copy"><svg><use href="#i-copy"/></svg>Copy</button>
+          <button data-act="save"><svg><use href="#i-save"/></svg>Save as</button>
+          <button data-act="clear"><svg><use href="#i-trash"/></svg>Clear</button>
+          <div class="grow"></div>
+          <button data-act="folder"><svg><use href="#i-folder"/></svg>Open folder</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ File ============ -->
+    <section class="page" id="page-file">
+      <div class="panel drop" id="drop">
+        <div class="drop-idle">
+          <div class="drop-icon"><svg><use href="#i-upload"/></svg></div>
+          <p><strong>Drop an audio or video file</strong> or <button class="link" id="choose-file">browse</button></p>
+          <p class="muted small">mp3, m4a, wav, mp4, mkv, webm, ogg, flac and more · a .txt and .srt are saved automatically</p>
+        </div>
+        <div class="drop-busy">
+          <div class="file-row">
+            <svg><use href="#i-file"/></svg>
+            <span id="file-name" class="ellipsis"></span>
+            <span id="file-pct" class="muted mono">0%</span>
+          </div>
+          <div class="progress"><i id="file-progress"></i></div>
+          <div class="muted small" id="file-note"></div>
+        </div>
+      </div>
+
+      <div class="panel transcript-wrap">
+        <div class="transcript" id="file-out">
+          <div class="empty">
+            <p class="muted small">The transcript appears here, line by line, as the file is decoded.</p>
+          </div>
+        </div>
+        <button class="jump" id="file-jump"><svg><use href="#i-down"/></svg>Latest</button>
+        <div class="toolbar" data-target="file-out" data-srt="1">
+          <button data-act="copy"><svg><use href="#i-copy"/></svg>Copy</button>
+          <button data-act="save"><svg><use href="#i-save"/></svg>Save as</button>
+          <button data-act="clear"><svg><use href="#i-trash"/></svg>Clear</button>
+          <div class="grow"></div>
+          <button data-act="folder"><svg><use href="#i-folder"/></svg>Open folder</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ History ============ -->
+    <section class="page" id="page-history">
+      <div class="history">
+        <div class="panel list-pane">
+          <label class="search">
+            <svg><use href="#i-search"/></svg>
+            <input id="history-search" placeholder="Search transcripts" autocomplete="off">
+          </label>
+          <div class="list" id="history-list"></div>
+        </div>
+        <div class="panel transcript-wrap">
+          <div class="viewer-head" id="viewer-head"></div>
+          <div class="transcript" id="history-out">
+            <div class="empty"><p class="muted small">Select a transcript to read it.</p></div>
+          </div>
+          <div class="toolbar" data-target="history-out">
+            <button data-act="copy"><svg><use href="#i-copy"/></svg>Copy</button>
+            <button data-act="save"><svg><use href="#i-save"/></svg>Save as</button>
+            <div class="grow"></div>
+            <button data-act="folder"><svg><use href="#i-folder"/></svg>Open folder</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Settings ============ -->
+    <section class="page scroll" id="page-settings">
+      <div class="settings">
+        <h2>Speech model</h2>
+        <div class="panel group">
+          <div class="row">
+            <div><div>Model</div><div class="muted small" id="model-hint"></div></div>
+            <select id="set-model"></select>
+          </div>
+          <div class="row">
+            <div><div>Run on</div><div class="muted small">Auto uses your graphics card and falls back to the processor.</div></div>
+            <div class="seg" id="set-device" data-key="device"><button>Auto</button><button>GPU</button><button>CPU</button></div>
+          </div>
+          <div class="row">
+            <div><div>Language</div><div class="muted small">Setting it is faster and more accurate than auto-detect.</div></div>
+            <select id="set-language"></select>
+          </div>
+        </div>
+
+        <h2>Live transcription</h2>
+        <div class="panel group">
+          <div class="row">
+            <div><div>Update every</div><div class="muted small">Shorter = text appears sooner. Longer = more accurate sentences.</div></div>
+            <div class="range"><input type="range" id="set-chunk" min="3" max="15" step="1"><span id="chunk-val" class="mono">6s</span></div>
+          </div>
+          <div class="row">
+            <div><div>Save meeting audio</div><div class="muted small">Keeps a WAV of each meeting so you can re-transcribe it for a cleaner copy.</div></div>
+            <label class="switch"><input type="checkbox" id="set-recordings"><i></i></label>
+          </div>
+        </div>
+
+        <h2>Transcripts</h2>
+        <div class="panel group">
+          <div class="row">
+            <div><div>Show timestamps</div><div class="muted small">Adds [00:01:23] before each line in saved files.</div></div>
+            <label class="switch"><input type="checkbox" id="set-timestamps"><i></i></label>
+          </div>
+          <div class="row">
+            <div><div>Quality</div><div class="muted small">How hard the model searches for the best wording.</div></div>
+            <div class="seg" id="set-beam" data-key="beam_size"><button>Fast</button><button>Balanced</button><button>Accurate</button></div>
+          </div>
+          <div class="row">
+            <div class="minw0"><div>Save transcripts in</div><div class="muted small ellipsis" id="folder-path"></div></div>
+            <button class="btn" id="set-folder">Change…</button>
+          </div>
+        </div>
+
+        <h2>Sounds</h2>
+        <div class="panel group">
+          <div class="row">
+            <div><div>Mute all sounds</div><div class="muted small">Silence every app sound, e.g. while recording. Also the speaker button in the side bar or Ctrl+M.</div></div>
+            <label class="switch"><input type="checkbox" id="set-muted"><i></i></label>
+          </div>
+          <div class="row" id="volume-row">
+            <div><div>Volume</div><div class="muted small">Start/stop, ready, file progress, warnings and errors.</div></div>
+            <div class="range"><input type="range" id="set-volume" min="0" max="100" step="5"><span id="volume-val" class="mono">70%</span></div>
+          </div>
+          <div class="row">
+            <div><div>Preview</div><div class="muted small">Plays each sound once so you can pick a comfortable volume.</div></div>
+            <button class="btn" id="test-sounds"><svg><use href="#i-play"/></svg>Play all</button>
+          </div>
+        </div>
+
+        <h2>Appearance</h2>
+        <div class="panel group">
+          <div class="row">
+            <div><div>Theme</div><div class="muted small">Light, dark, or follow Windows.</div></div>
+            <div class="seg" id="set-theme" data-key="appearance"><button>Light</button><button>Dark</button><button>System</button></div>
+          </div>
+        </div>
+        <p class="muted small foot">Private · everything runs on this PC. Changes are saved automatically.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ Modal + toast ============ -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-card">
+    <h3 id="modal-title"></h3>
+    <p id="modal-body"></p>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="sounds.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
